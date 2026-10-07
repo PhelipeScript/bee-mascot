@@ -1,0 +1,20 @@
+# Dependências
+node_modules/
+
+# Builds
+dist/
+dist-lib/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor/OS
+.DS_Store
+.idea/
+.vscode/
+*.local
+
+# Testes
+__pycache__/
+*.pyc

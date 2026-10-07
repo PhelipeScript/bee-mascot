@@ -1,0 +1,32 @@
+{
+  "name": "@sistema/bee-mascot",
+  "version": "1.0.0",
+  "description": "Mascote abelha animado com física realista, máquina de estados e integrações web",
+  "type": "module",
+  "files": [
+    "dist-lib"
+  ],
+  "main": "./dist-lib/bee-mascot.js",
+  "module": "./dist-lib/bee-mascot.js",
+  "types": "./dist-lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist-lib/index.d.ts",
+      "import": "./dist-lib/bee-mascot.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "build:lib": "tsc --noEmit && vite build --config vite.lib.config.ts && tsc -p tsconfig.lib.json",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^6.0.7"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true
+  }
+}

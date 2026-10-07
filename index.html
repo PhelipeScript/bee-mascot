@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BeeMascot — mascote abelha com física realista</title>
+    <meta
+      name="description"
+      content="Demo completa do BeeMascot: física de forças, 4 sprites SVG, 10 estados, favicon dinâmico, loaders, onboarding e integrações."
+    />
+  </head>
+  <body>
+    <!-- Container da abelha principal: layer fixo de viewport (pointer-events: none) -->
+    <div id="bee-viewport" class="bee-viewport" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="logo" href="#" data-bee-logo aria-label="BeeMascot — clique para a abelha celebrar">
+        <span class="logo__mark" id="logo-bee"></span>
+        <span class="logo__name">Bee<span class="logo__accent">Mascot</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Seções">
+        <a href="#estados">Estados</a>
+        <a href="#integracoes">Integrações</a>
+        <a href="#api">API</a>
+      </nav>
+      <div class="header-right">
+        <span class="chip" id="state-chip" data-state="idle"><i class="chip__dot"></i><span id="state-chip-text">idle</span></span>
+        <span class="chip chip--ghost" id="fps-chip">-- fps</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============================== HERO ============================== -->
+      <section class="hero">
+        <div class="hero__copy">
+          <p class="eyebrow">Mascote do sistema · demo completa</p>
+          <h1>Uma abelha que<br /><em>voa de verdade</em>.</h1>
+          <p class="lead">
+            Física de forças com momentum, ruído orgânico, ping-pong de asas
+            sincronizado com a velocidade e <strong>10 estados</strong> com blend
+            suave. SVG + rAF, zero dependências de runtime.
+          </p>
+          <div class="hero__actions" id="hero-actions">
+            <button class="btn btn--primary" data-action="followTarget">Seguir o mouse</button>
+            <button class="btn" data-action="thinking">Pensando…</button>
+            <button class="btn btn--success" data-action="celebrate">Celebrar</button>
+            <button class="btn" data-action="sleep">Dormir</button>
+            <button class="btn btn--ghost" data-action="tour">Fazer o tour</button>
+          </div>
+          <p class="hero__hint">
+            Dica: mova o mouse por aqui — a abelha segue com atraso natural e
+            respeita seu espaço pessoal.
+          </p>
+        </div>
+
+        <aside class="telemetry" id="telemetry" aria-label="Telemetria do mascote">
+          <h2 class="telemetry__title">Telemetria <span class="live-dot"></span></h2>
+          <dl class="telemetry__grid">
+            <div><dt>Estado</dt><dd id="t-state">idle</dd></div>
+            <div><dt>Frame</dt><dd id="t-frame">0</dd></div>
+            <div><dt>Velocidade</dt><dd id="t-speed">0 px/s</dd></div>
+            <div><dt>Posição</dt><dd id="t-pos">0, 0</dd></div>
+            <div><dt>FPS</dt><dd id="t-fps">60</dd></div>
+            <div><dt>Partículas</dt><dd id="t-quality">high</dd></div>
+          </dl>
+          <p class="telemetry__note">
+            O frame do sprite acelera com a velocidade: parada ~13&nbsp;Hz,
+            em voo rápido ~37&nbsp;Hz.
+          </p>
+        </aside>
+      </section>
+
+      <!-- ============================= ESTADOS ============================ -->
+      <section id="estados" class="section">
+        <header class="section__head">
+          <h2>10 estados, 1 FSM</h2>
+          <p>
+            Cada estado tem um perfil de energia (velocidade, força, flap). As
+            transições interpolam o perfil em ~280&nbsp;ms — nada teleporta.
+          </p>
+        </header>
+        <div class="state-grid" id="state-grid"><!-- gerado em main.ts --></div>
+      </section>
+
+      <!-- =========================== INTEGRAÇÕES ========================= -->
+      <section id="integracoes" class="section">
+        <header class="section__head">
+          <h2>Integrações no sistema</h2>
+          <p>Tudo que o mascote faz em uma página real — ao vivo nesta demo.</p>
+        </header>
+
+        <div class="cards">
+          <!-- 1. Favicon -->
+          <article class="card" id="card-favicon">
+            <h3>1 · Favicon dinâmico</h3>
+            <div class="favicon-demo">
+              <img id="favicon-img" width="64" height="64" alt="Prévia do favicon atual" />
+              <div>
+                <p class="favicon-demo__state">estado: <strong id="favicon-state">idle</strong></p>
+                <p class="muted">Troque de estado e observe o ícone da aba (e a prévia) mudarem.</p>
+              </div>
+            </div>
+            <p class="muted small">
+              Rasterização: frame SVG → blob → canvas 64px → PNG, cacheada por
+              chave e com throttle de ~7 trocas/s.
+            </p>
+          </article>
+
+          <!-- 2. Loader -->
+          <article class="card" id="card-loader">
+            <h3>2 · Loader global &amp; local</h3>
+            <div class="loader-stage" id="local-loader-stage">
+              <span class="muted small">área do loader local</span>
+            </div>
+            <div class="row">
+              <button class="btn" id="btn-local-loader">Loader local</button>
+              <button class="btn btn--primary" id="btn-global-loader">Loader global</button>
+            </div>
+            <p class="muted small">
+              Cada loader cria a própria instância da abelha dentro do overlay
+              (o rAF é compartilhado entre instâncias).
+            </p>
+          </article>
+
+          <!-- 3. Reações -->
+          <article class="card" id="card-reactions">
+            <h3>3 · Reações de feedback</h3>
+            <div class="row row--wrap">
+              <button class="btn btn--success" data-bee="success">Salvar (sucesso)</button>
+              <button class="btn btn--danger" data-bee="error">Disparar erro</button>
+              <button class="btn" data-bee="info">Info</button>
+              <button class="btn btn--ghost" data-bee="celebrate">Comemorar</button>
+            </div>
+            <form class="form" data-bee-form>
+              <input type="text" placeholder="Escreva algo e envie…" aria-label="Texto de exemplo" />
+              <button class="btn btn--primary" type="submit">Enviar</button>
+            </form>
+            <p class="muted small">
+              Reações somam força à FSM (fuga/tremor) sem trocar o estado
+              atual — momentum sempre preservado.
+            </p>
+          </article>
+
+          <!-- 4. Dock -->
+          <article class="card" id="card-dock">
+            <h3>4 · Modo companheiro (dock)</h3>
+            <div class="dock-pad" id="dock-pad">
+              <span>convide a abelha para ficar aqui</span>
+            </div>
+            <div class="row">
+              <button class="btn btn--primary" id="btn-dock">Convidar abelha</button>
+              <button class="btn" id="btn-undock">Desconvidar</button>
+            </div>
+            <p class="muted small">
+              <code>bee.dock(el)</code> ancora a órbita no elemento;
+              <code>bee.undock()</code> devolve o voo livre.
+            </p>
+          </article>
+
+          <!-- 5. Onboarding -->
+          <article class="card" id="card-tour">
+            <h3>5 · Guia de onboarding</h3>
+            <p class="muted">
+              4 passos: a abelha voa até cada elemento enquanto um ring de
+              destaque e o card acompanham.
+            </p>
+            <div class="row">
+              <button class="btn btn--primary" id="btn-tour">Iniciar tour</button>
+            </div>
+            <p class="muted small">ESC encerra · funciona em DOM dinâmico (alvos por seletor).</p>
+          </article>
+
+          <!-- 6. Acessibilidade & performance -->
+          <article class="card" id="card-a11y">
+            <h3>6 · Acessibilidade &amp; performance</h3>
+            <div class="row row--wrap controls">
+              <label class="field">
+                Qualidade
+                <select id="sel-quality">
+                  <option value="low">low (sem partículas)</option>
+                  <option value="medium">medium</option>
+                  <option value="high" selected>high</option>
+                </select>
+              </label>
+              <label class="field">
+                Tamanho
+                <select id="sel-size">
+                  <option value="48">48 · mini</option>
+                  <option value="64">64 · pequena</option>
+                  <option value="96" selected>96 · padrão</option>
+                  <option value="128">128 · grande</option>
+                  <option value="160">160 · XL</option>
+                </select>
+              </label>
+              <label class="field">
+                Tema
+                <select id="sel-theme">
+                  <option value="auto">auto</option>
+                  <option value="light">claro</option>
+                  <option value="dark" selected>escuro</option>
+                </select>
+              </label>
+              <label class="check">
+                <input type="checkbox" id="chk-announce" />
+                anunciar estados (aria-live)
+              </label>
+            </div>
+            <p class="muted small" id="reduced-note">prefers-reduced-motion: verificando…</p>
+            <p class="muted small">
+              A física pausa sozinha quando o container sai da viewport ou a aba
+              fica oculta (IntersectionObserver + visibilitychange).
+            </p>
+          </article>
+
+          <!-- 7. callHelp -->
+          <article class="card" id="card-callhelp">
+            <h3>7 · Chamar equipe (callHelp)</h3>
+            <p class="muted">
+              A abelha-chefe chama 3–5 auxiliares, cada um com um papel — e
+              auto-retorna ao estado anterior quando a tarefa termina.
+            </p>
+            <ul class="helper-roles">
+              <li><code>batedora</code> órbita ampla mapeando a tarefa</li>
+              <li><code>construtora</code> leva pólen do depósito ao alvo</li>
+              <li><code>sentinela</code> patrulha o perímetro</li>
+              <li><code>mensageira</code> corre entre a chefe e a tarefa</li>
+              <li><code>analisadora</code> radar par acima do alvo</li>
+            </ul>
+            <div class="row">
+              <button class="btn btn--primary" id="btn-callhelp">Chamar a equipe</button>
+              <span class="chip chip--ghost" id="helper-count">0 auxiliares</span>
+            </div>
+            <p class="muted small">
+              Nº de auxiliares segue a qualidade: low&nbsp;3 · medium&nbsp;4 ·
+              high&nbsp;5 (ou <code>helpers</code> explícito na chamada).
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- =============================== API ============================== -->
+      <section id="api" class="section">
+        <header class="section__head">
+          <h2>API em 10 linhas</h2>
+          <p>Instalação no sistema real: <code>npm i</code> + 1 import + 1 chamada.</p>
+        </header>
+        <pre class="code" aria-label="Exemplo de código"><code><span class="k">import</span> { createBeeMascot, createFavicon, attachReactions }
+  <span class="k">from</span> <span class="s">'@sistema/bee-mascot'</span>;
+
+<span class="k">const</span> bee = createBeeMascot({
+  container: document.querySelector(<span class="s">'#camada-flutuante'</span>),
+  initialState: <span class="s">'idle'</span>,
+  quality: <span class="s">'high'</span>,
+});
+
+bee.setState(<span class="s">'followTarget'</span>, { target: <span class="s">'mouse'</span> });
+bee.setTarget(document.querySelector(<span class="s">'#botao-onboarding'</span>));
+bee.celebrate();            <span class="c">// auto-retorna ao estado anterior</span>
+bee.setLoading(0.6);        <span class="c">// 0..1 vira anel de progresso</span>
+bee.dock(document.querySelector(<span class="s">'#sidebar'</span>));
+bee.callHelp({ target: <span class="s">'#tarefa'</span> }); <span class="c">// chama 3–5 auxiliares</span>
+
+createFavicon(bee);                     <span class="c">// ícone da aba vivo</span>
+attachReactions(bee);                   <span class="c">// [data-bee] + forms</span></code></pre>
+        <div class="api-table">
+          <div><code>setState(estado, opções)</code><span>idle · followTarget · loading · celebrate · callHelp · thinking · logoMode · faviconMode · guide · sleep</span></div>
+          <div><code>setTarget(el | ponto | 'mouse')</code><span>persegue com arrive + espaço pessoal</span></div>
+          <div><code>celebrate(opções)</code><span>loops + pólen, auto-retorno</span></div>
+          <div><code>callHelp(opções)</code><span>enxame de 3–5 auxiliares com papéis, auto-retorno</span></div>
+          <div><code>setLoading(p?) / setProgress(p)</code><span>órbita ou anel de progresso</span></div>
+          <div><code>dock(el) / undock()</code><span>modo companheiro</span></div>
+          <div><code>react('success'|'error'|'info')</code><span>física de reação sem trocar estado</span></div>
+          <div><code>on(evento, cb)</code><span>statechange · frame · arrived · rest · click · react</span></div>
+          <div><code>pause() / resume() / destroy()</code><span>controle de ciclo de vida</span></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>BeeMascot · SVG + rAF + física de forças · zero dependências de runtime</p>
+      <p class="muted small">psst… clique 5× rápido no logo acima. 🐝</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
